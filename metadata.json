@@ -1,0 +1,6 @@
+{
+  "name": "IceBourg Design Hub",
+  "description": "Premium design studio interface featuring an AI-powered project assistant and interactive 3D scene.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

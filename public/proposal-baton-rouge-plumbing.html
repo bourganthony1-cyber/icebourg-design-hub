@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proposal — Baton Rouge Plumbing × Icebourg Design</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #08080e;
+      color: #e8e8f0;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .bg-glow {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(180,200,255,.06) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 70%, rgba(255,255,255,.03) 0%, transparent 60%);
+    }
+    .container { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 60px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 36px; height: 36px; background: #fff; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px; color: #08080e;
+    }
+    .brand-name { font-weight: 600; font-size: 16px; letter-spacing: -.3px; }
+    .badge {
+      font-size: 11px; padding: 4px 12px; border-radius: 20px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+      color: rgba(255,255,255,.5); letter-spacing: .3px; text-transform: uppercase;
+    }
+    .hero { text-align: center; margin-bottom: 60px; }
+    .hero-label {
+      display: inline-block; font-size: 12px; text-transform: uppercase;
+      letter-spacing: 2px; color: rgba(255,255,255,.35); margin-bottom: 16px;
+      padding: 6px 16px; border: 1px solid rgba(255,255,255,.08); border-radius: 20px;
+      background: rgba(255,255,255,.03);
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px); font-weight: 700; letter-spacing: -1px;
+      line-height: 1.15; margin-bottom: 16px;
+    }
+    .hero h1 span { background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,.5)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p {
+      font-size: 18px; color: rgba(255,255,255,.5); max-width: 600px; margin: 0 auto;
+    }
+    .hero-meta {
+      display: flex; justify-content: center; gap: 32px; margin-top: 28px;
+      font-size: 14px; color: rgba(255,255,255,.35);
+    }
+    section { margin-bottom: 60px; }
+    .section-label {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 2px;
+      color: rgba(255,255,255,.25); margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 28px; font-weight: 600; letter-spacing: -.5px; margin-bottom: 24px;
+    }
+    .diag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .diag-card {
+      padding: 24px; border-radius: 14px;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+      transition: .2s;
+    }
+    .diag-card:hover { border-color: rgba(255,255,255,.12); }
+    .diag-icon { font-size: 24px; margin-bottom: 10px; }
+    .diag-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .diag-card p { font-size: 14px; color: rgba(255,255,255,.5); }
+    .severity {
+      display: inline-block; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1px; padding: 2px 10px; border-radius: 10px; margin-top: 10px;
+    }
+    .sev-high { background: rgba(255,70,70,.12); color: #ff6b6b; border: 1px solid rgba(255,70,70,.2); }
+    .sev-med  { background: rgba(255,190,50,.12); color: #f0c040; border: 1px solid rgba(255,190,50,.2); }
+    .tiers { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
+    .tier {
+      padding: 32px 28px; border-radius: 16px; position: relative;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+      transition: .3s; display: flex; flex-direction: column;
+    }
+    .tier:hover { border-color: rgba(255,255,255,.15); transform: translateY(-2px); }
+    .tier.featured {
+      background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.15);
+      box-shadow: 0 0 40px rgba(255,255,255,.04);
+    }
+    .tier.featured::before {
+      content: 'RECOMMENDED'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; letter-spacing: 2px; padding: 4px 16px; border-radius: 10px;
+      background: #fff; color: #08080e; font-weight: 600;
+    }
+    .tier-name { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,.35); margin-bottom: 8px; }
+    .tier-price { font-size: 42px; font-weight: 700; letter-spacing: -1.5px; margin-bottom: 4px; }
+    .tier-price small { font-size: 16px; font-weight: 400; color: rgba(255,255,255,.35); }
+    .tier-desc { font-size: 14px; color: rgba(255,255,255,.5); margin-bottom: 24px; }
+    .tier ul { list-style: none; margin-bottom: 28px; flex: 1; }
+    .tier ul li {
+      padding: 8px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.04);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .tier ul li::before { content: '\u2713'; color: rgba(255,255,255,.4); font-weight: 600; }
+    .tier ul li.missing { color: rgba(255,255,255,.2); }
+    .tier ul li.missing::before { content: '\u2014'; color: rgba(255,255,255,.1); }
+    .cta-btn {
+      display: block; text-align: center; padding: 14px; border-radius: 10px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
+      color: #fff; text-decoration: none; font-weight: 500; font-size: 14px;
+      transition: .2s; margin-top: auto;
+    }
+    .cta-btn:hover { background: rgba(255,255,255,.12); }
+    .tier.featured .cta-btn { background: #fff; color: #08080e; border-color: #fff; }
+    .timeline {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px;
+    }
+    .step {
+      padding: 20px; border-radius: 12px;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+      text-align: center;
+    }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 12px;
+      background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600;
+    }
+    .step h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .step p { font-size: 12px; color: rgba(255,255,255,.4); }
+    footer {
+      text-align: center; padding-top: 40px; border-top: 1px solid rgba(255,255,255,.06);
+      font-size: 13px; color: rgba(255,255,255,.25);
+    }
+  </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="container">
+  <header class="header">
+    <div class="brand">
+      <div class="brand-icon">I</div>
+      <div class="brand-name">Icebourg Design</div>
+    </div>
+    <div class="badge">Proposal &middot; May 2026</div>
+  </header>
+  <div class="hero">
+    <div class="hero-label">📄 Web Design Proposal</div>
+    <h1><span>Baton Rouge Plumbing</span><br>Digital Presence Overhaul</h1>
+    <p>A modern, mobile-first website with SEO strategy to turn more searches into service calls.</p>
+    <div class="hero-meta">
+      <span>📍 Baton Rouge, LA</span>
+      <span>📅 3&ndash;6 week timeline</span>
+      <span>🏗️ Since 1986</span>
+    </div>
+  </div>
+  <section>
+    <div class="section-label">🔍 Assessment</div>
+    <h2>What's Holding Back Your Online Presence</h2>
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="diag-icon">📱</div>
+        <h4>Not Mobile-Friendly</h4>
+        <p>Fixed-width layout from the early 2010s. On phones &mdash; where 70% of searches happen &mdash; text is tiny and buttons impossible to tap.</p>
+        <div class="severity sev-high">Critical</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-icon">🎨</div>
+        <h4>Outdated Visual Design</h4>
+        <p>Drop shadows, gradient-heavy logos, boxy layouts. For a 39-year-old business, your site should reflect trust and reliability &mdash; not 2008.</p>
+        <div class="severity sev-high">Critical</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-icon">🔍</div>
+        <h4>No Local SEO</h4>
+        <p>No schema markup, unoptimized Google profile. When someone searches "plumber Baton Rouge" &mdash; competitors show up first.</p>
+        <div class="severity sev-med">High</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-icon">📧</div>
+        <h4>ISP Email</h4>
+        <p>cox.net email for a 39-year-old business. A proper @batonrougeplumbing.org email costs nothing and builds instant trust.</p>
+        <div class="severity sev-med">Medium</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-icon">⚡</div>
+        <h4>Slow Load Speed</h4>
+        <p>Outdated code and unoptimized images. Google penalizes slow sites, and customers bounce before they even see your number.</p>
+        <div class="severity sev-med">Medium</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-icon">📊</div>
+        <h4>Bare Google Profile</h4>
+        <p>Google Business profile exists but has minimal info, no photos, no posts. This is the first thing customers see.</p>
+        <div class="severity sev-med">High</div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="section-label">🧊 Our Approach</div>
+    <h2>How Icebourg Design Fixes This</h2>
+    <div class="timeline">
+      <div class="step"><div class="step-num">1</div><h4>Discovery</h4><p>We learn your business, customers, and what makes you different from every other plumber in Baton Rouge.</p></div>
+      <div class="step"><div class="step-num">2</div><h4>Design</h4><p>Modern, dark-themed, mobile-first design that reflects the quality of a 39-year-old local business.</p></div>
+      <div class="step"><div class="step-num">3</div><h4>Build</h4><p>Fast, clean code. Lightning load speeds. Contact forms that work. A site that converts visitors into calls.</p></div>
+      <div class="step"><div class="step-num">4</div><h4>Optimize</h4><p>Google Business overhaul, local SEO, and ongoing visibility so you show up first when someone needs a plumber.</p></div>
+    </div>
+  </section>
+  <section>
+    <div class="section-label">💰 Investment</div>
+    <h2>Choose the Package That Fits</h2>
+    <div class="tiers">
+      <div class="tier">
+        <div class="tier-name">Essential</div>
+        <div class="tier-price">$1,800 <small>one-time</small></div>
+        <div class="tier-desc">A modern website that works on every device.</div>
+        <ul>
+          <li>Mobile-responsive 1-page site</li>
+          <li>Modern dark-theme design</li>
+          <li>Contact form with email notifications</li>
+          <li>Google Maps integration</li>
+          <li>SSL certificate included</li>
+          <li>Call-to-action optimized layout</li>
+          <li class="missing">On-page SEO optimization</li>
+          <li class="missing">Google Business profile overhaul</li>
+          <li class="missing">Local citation building</li>
+          <li class="missing">Monthly performance reports</li>
+          <li class="missing">Content updates &amp; maintenance</li>
+        </ul>
+        <a href="#" class="cta-btn">Choose Essential</a>
+      </div>
+      <div class="tier featured">
+        <div class="tier-name">Growth</div>
+        <div class="tier-price">$3,500 <small>one-time</small></div>
+        <div class="tier-desc">Website + SEO foundation to dominate local search.</div>
+        <ul>
+          <li>Everything in Essential</li>
+          <li>Full SEO keyword research</li>
+          <li>On-page SEO (meta tags, schema, headers)</li>
+          <li>Google Business profile complete overhaul</li>
+          <li>Local citation building (Yelp, BBB, Angi)</li>
+          <li>Google Analytics + Search Console setup</li>
+          <li>5 service pages (not just 1 page)</li>
+          <li class="missing">Monthly performance reports</li>
+          <li class="missing">Content updates &amp; maintenance</li>
+          <li class="missing">Monthly blog content</li>
+        </ul>
+        <a href="#" class="cta-btn">Choose Growth</a>
+      </div>
+      <div class="tier">
+        <div class="tier-name">Dominance</div>
+        <div class="tier-price">$6,500 <small>+ $350/mo</small></div>
+        <div class="tier-desc">Full-service partnership with ongoing optimization.</div>
+        <ul>
+          <li>Everything in Growth</li>
+          <li>Custom multi-page website (up to 10 pages)</li>
+          <li>Advanced technical SEO audit + fix</li>
+          <li>Backlink strategy &amp; outreach</li>
+          <li>Monthly blog content (2 posts)</li>
+          <li>Monthly performance reports</li>
+          <li>Ongoing maintenance &amp; updates</li>
+          <li>Priority support (response within 4 hours)</li>
+          <li>Quarterly strategy calls</li>
+          <li>Hosting &amp; domain management included</li>
+        </ul>
+        <a href="#" class="cta-btn">Choose Dominance</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="section-label">🧊 Why Icebourg</div>
+    <h2>We Build for Baton Rouge</h2>
+    <div class="diag-grid">
+      <div class="diag-card"><div class="diag-icon">🎯</div><h4>Local Focus</h4><p>We understand Baton Rouge. Your competition isn't Silicon Valley &mdash; it's the other plumber down the street. We make you the obvious choice.</p></div>
+      <div class="diag-card"><div class="diag-icon">⚡</div><h4>Built to Convert</h4><p>Every pixel turns a visitor into a call. Clear CTAs, mobile-first layout, speed that keeps people from bouncing.</p></div>
+      <div class="diag-card"><div class="diag-icon">🔄</div><h4>No Lock-In</h4><p>Your site is yours. No proprietary platforms, no hidden fees. Standard tech you can take anywhere.</p></div>
+    </div>
+  </section>
+  <footer>
+    <p><strong>Icebourg Design</strong> — Premium digital design studio. Baton Rouge, LA.</p>
+    <p style="margin-top:6px;">Prepared for <strong>Baton Rouge Plumbing LLC</strong>. Pricing valid for 30 days.</p>
+  </footer>
+</div>
+</body>
+</html>
