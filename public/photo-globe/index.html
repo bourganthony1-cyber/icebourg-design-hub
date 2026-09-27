@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Globe — studio piece</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{
+    --ink:#f4f2ee;
+    --dim:#8b8a87;
+    --line:rgba(255,255,255,.10);
+    --bg:#08090b;
+    --accent:#c8a26a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink); overflow:hidden;
+    font:400 14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* soft vignette + a faint warm bloom behind the globe */
+  .vignette{
+    position:fixed; inset:0; pointer-events:none; z-index:2;
+    background:
+      radial-gradient(60% 60% at 50% 46%, rgba(200,162,106,.07), transparent 70%),
+      radial-gradient(120% 90% at 50% 50%, transparent 45%, rgba(0,0,0,.75) 100%);
+  }
+  canvas#stage{position:fixed; inset:0; display:block; z-index:1}
+
+  .hud{position:fixed; inset:0; z-index:3; pointer-events:none}
+  .hud > *{pointer-events:auto}
+
+  .brand{
+    position:absolute; top:38px; left:44px;
+    display:flex; align-items:baseline; gap:14px;
+  }
+  .brand .mark{
+    font:600 15px/1 ui-sans-serif,-apple-system,"Segoe UI",Inter,sans-serif;
+    letter-spacing:.34em; text-transform:uppercase;
+  }
+  .brand .rule{width:34px;height:1px;background:var(--line)}
+  .brand .sub{
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--dim);
+  }
+
+  .status{
+    position:absolute; bottom:40px; left:44px;
+    display:flex; flex-direction:column; gap:9px;
+  }
+  .status .row{display:flex; align-items:center; gap:10px}
+  .dot{
+    width:6px;height:6px;border-radius:50%;background:var(--dim);
+    box-shadow:0 0 0 0 rgba(200,162,106,0);
+    transition:background .3s, box-shadow .3s;
+  }
+  .dot.live{background:var(--accent); box-shadow:0 0 12px 1px rgba(200,162,106,.55)}
+  .status .label{
+    font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim);
+  }
+  .status .label b{color:var(--ink); font-weight:500}
+
+  .hint{
+    position:absolute; bottom:40px; right:44px; text-align:right;
+    font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim);
+  }
+  .hint kbd{
+    font:inherit; border:1px solid var(--line); border-radius:4px;
+    padding:3px 7px; margin-left:6px; color:var(--ink);
+  }
+
+  .camwrap{
+    position:absolute; right:44px; top:38px; width:190px;
+    border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    background:#0d0f12; aspect-ratio:4/3;
+    opacity:0; transform:translateY(-6px);
+    transition:opacity .5s, transform .5s;
+  }
+  .camwrap.on{opacity:1; transform:none}
+  .camwrap video, .camwrap canvas{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+  .camwrap video{transform:scaleX(-1)}
+  .camwrap .tag{
+    position:absolute; left:8px; bottom:6px; font-size:9px; letter-spacing:.18em;
+    text-transform:uppercase; color:rgba(255,255,255,.5);
+  }
+
+  .cta{
+    position:absolute; left:50%; bottom:104px; transform:translateX(-50%);
+    appearance:none; cursor:pointer;
+    background:rgba(8,9,11,.78); backdrop-filter:blur(10px); color:var(--ink);
+    border:1px solid var(--line); border-radius:999px;
+    padding:12px 22px; font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+    transition:border-color .25s, background .25s, color .25s;
+  }
+  .cta:hover{border-color:var(--accent); color:var(--accent)}
+  .cta.gone{opacity:0; pointer-events:none}
+
+  .err{
+    position:absolute; left:50%; bottom:104px; transform:translateX(-50%);
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim);
+    opacity:0; transition:opacity .4s;
+  }
+  .err.on{opacity:1}
+
+  .loader{
+    position:fixed; inset:0; z-index:5; background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    font-size:10.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--dim);
+    transition:opacity .7s; 
+  }
+  .loader.gone{opacity:0; pointer-events:none}
+
+  @media (max-width:820px){
+    .brand,.status,.hint{left:22px; right:22px}
+    .hint{text-align:left}
+    .camwrap{width:132px; right:22px}
+  }
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">Loading</div>
+<canvas id="stage"></canvas>
+<div class="vignette"></div>
+
+<div class="hud">
+  <div class="brand">
+    <span class="mark">Studio</span>
+    <span class="rule"></span>
+    <span class="sub">Selected work</span>
+  </div>
+
+  <div class="camwrap" id="camwrap">
+    <video id="cam" playsinline muted autoplay></video>
+    <canvas id="camoverlay"></canvas>
+    <span class="tag">Tracking</span>
+  </div>
+
+  <div class="status">
+    <div class="row"><span class="dot" id="dot"></span><span class="label" id="modelabel"><b>Hand</b> — off</span></div>
+    <div class="row"><span class="dot live"></span><span class="label"><b>Globe</b> — live</span></div>
+  </div>
+
+  <button class="cta" id="cta">Enable hand tracking</button>
+  <div class="err" id="err"></div>
+
+  <div class="hint">Move your hand · or drag <kbd>drag</kbd></div>
+</div>
+
+<script type="module">
+import * as THREE from './vendor/three.module.js';
+
+/* ------------------------------------------------------------------ config */
+const TILE_COUNT   = 88;      // tiles on the sphere
+const RADIUS       = 1.0;
+const TILE_SIZE    = 0.175;
+const POINTER_YAW  = 1.35;    // radians of travel at the far edge of the screen
+const POINTER_PITCH= 0.62;
+const IDLE_SPIN    = 0.0016;  // radians per frame, only while untouched
+const EASE         = 0.065;
+
+const PHOTOS = [
+  'fashion-portrait','wedding-golden','product-leather','studio-headshot',
+  'interior-arch','stilllife-flowers','street-night','food-plate'
+].map(n => `photos/${n}.jpg`);
+
+/* --------------------------------------------------------------- renderer */
+const canvas   = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setClearColor(0x08090b, 1);
+
+const scene  = new THREE.Scene();
+scene.fog    = new THREE.Fog(0x08090b, 2.35, 4.5);
+
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(0, 0, 3.15);
+
+const globe = new THREE.Group();
+scene.add(globe);
+
+/* ------------------------------------------------------------------ tiles */
+// Fibonacci sphere: even spacing without seams at the poles.
+const positions = (() => {
+  const pts = [], golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < TILE_COUNT; i++) {
+    const y = 1 - (i / (TILE_COUNT - 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y*y));
+    const th = golden * i;
+    pts.push(new THREE.Vector3(Math.cos(th)*r, y, Math.sin(th)*r));
+  }
+  return pts;
+})();
+
+// Placeholder tile: a deterministic muted gradient so the piece is never empty
+// while the real photos are loading (or missing entirely).
+function placeholderTexture(i){
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  const hue = (i * 47) % 360;
+  const grd = g.createLinearGradient(0, 0, 256, 256);
+  grd.addColorStop(0, `hsl(${hue} 12% 26%)`);
+  grd.addColorStop(1, `hsl(${(hue+40)%360} 14% 12%)`);
+  g.fillStyle = grd; g.fillRect(0,0,256,256);
+  g.strokeStyle = 'rgba(255,255,255,.06)'; g.lineWidth = 2;
+  g.strokeRect(16,16,224,224);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+const loader = new THREE.TextureLoader();
+loader.setCrossOrigin('anonymous');
+
+const tiles = [];
+const geometry = new THREE.PlaneGeometry(TILE_SIZE, TILE_SIZE);
+
+for (let i = 0; i < TILE_COUNT; i++) {
+  const pos = positions[i].clone().multiplyScalar(RADIUS);
+
+  const material = new THREE.MeshBasicMaterial({
+    map: placeholderTexture(i),
+    transparent: true,
+    opacity: 0,
+    side: THREE.DoubleSide,
+    fog: true,
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.copy(pos);
+  // +Z of a PlaneGeometry is the visible face; aim it away from the centre.
+  mesh.lookAt(pos.clone().multiplyScalar(2));
+
+  // stagger the fade-in so the globe assembles rather than pops
+  tiles.push({ mesh, material, delay: i * 6 });
+  globe.add(mesh);
+
+  // stride the set so neighbours are never the same photo
+  const src = PHOTOS[(i * 3) % PHOTOS.length];
+  loader.load(src, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    material.map = tex;
+    material.needsUpdate = true;
+  }, undefined, () => { /* keep the placeholder */ });
+}
+
+// faint shell so the sphere reads even where tiles are sparse
+const shell = new THREE.Mesh(
+  new THREE.SphereGeometry(RADIUS * 1.005, 32, 24),
+  new THREE.MeshBasicMaterial({ color:0xffffff, wireframe:true, transparent:true, opacity:0.018, fog:true })
+);
+globe.add(shell);
+
+/* ------------------------------------------------------------------ input */
+let baseYaw = 0, basePitch = 0;     // drifts on its own while idle
+let wantYaw = 0, wantPitch = 0;     // base + whatever the input is asking for
+let yaw = 0, pitch = 0;             // what is actually rendered
+let idleFrames = 0;
+let handYaw = 0, handPitch = 0;     // absolute contribution from pointer
+let dragging = false, lastX = 0, lastY = 0;
+
+function applyInput(nx, ny, source){           // nx, ny in -0.5..0.5
+  handYaw   =  nx * 2 * POINTER_YAW;
+  handPitch =  ny * 2 * POINTER_PITCH;
+  idleFrames = 0;
+  document.getElementById('dot').classList.toggle('live', source === 'hand' || source === 'pointer');
+}
+
+window.addEventListener('pointermove', (e) => {
+  if (dragging){
+    baseYaw   += (e.clientX - lastX) * 0.006;
+    basePitch += (e.clientY - lastY) * 0.006;
+    lastX = e.clientX; lastY = e.clientY;
+    idleFrames = 0;
+    return;
+  }
+  applyInput(e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5, 'pointer');
+});
+window.addEventListener('pointerdown', (e) => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  canvas.style.cursor = 'grabbing';
+});
+window.addEventListener('pointerup', () => { dragging = false; canvas.style.cursor = 'grab'; });
+canvas.style.cursor = 'grab';
+
+/* ------------------------------------------------- hand tracking (optional) */
+const cta      = document.getElementById('cta');
+const errEl    = document.getElementById('err');
+const camwrap  = document.getElementById('camwrap');
+const video    = document.getElementById('cam');
+const overlay  = document.getElementById('camoverlay');
+const octx     = overlay.getContext('2d');
+const modelabel= document.getElementById('modelabel');
+
+let handLandmarker = null;
+let lastVideoTime  = -1;
+let handSeenAt     = 0;
+
+function fail(msg){
+  errEl.textContent = msg;
+  errEl.classList.add('on');
+  modelabel.innerHTML = '<b>Hand</b> — off';
+  cta.classList.remove('gone');
+}
+
+cta.addEventListener('click', async () => {
+  cta.classList.add('gone');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width:{ideal:640}, height:{ideal:480}, facingMode:'user' }, audio:false
+    });
+    video.srcObject = stream;
+    await video.play();
+    camwrap.classList.add('on');
+    modelabel.innerHTML = '<b>Hand</b> — loading model';
+
+    const { FilesetResolver, HandLandmarker } =
+      await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs');
+
+    const fileset = await FilesetResolver.forVisionTasks(
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm'
+    );
+    handLandmarker = await HandLandmarker.createFromOptions(fileset, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+        delegate: 'GPU',
+      },
+      runningMode: 'VIDEO',
+      numHands: 1,
+      minHandDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    modelabel.innerHTML = '<b>Hand</b> — show your hand';
+    requestAnimationFrame(trackLoop);
+  } catch (e) {
+    const denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
+    fail(denied ? 'Camera blocked — drag instead' : 'Tracking unavailable — drag instead');
+  }
+});
+
+function trackLoop(){
+  if (!handLandmarker) return;
+  requestAnimationFrame(trackLoop);
+  if (video.readyState < 2) return;
+
+  const now = performance.now();
+  if (video.currentTime === lastVideoTime) return;
+  lastVideoTime = video.currentTime;
+
+  let res;
+  try { res = handLandmarker.detectForVideo(video, now); } catch { return; }
+
+  // mirror the camera so "move left" means "move left" on screen
+  overlay.width = video.videoWidth || 640;
+  overlay.height = video.videoHeight || 480;
+  octx.clearRect(0, 0, overlay.width, overlay.height);
+
+  const hand = res?.landmarks?.[0];
+  if (hand && hand.length > 12) {
+    // landmark 9 = middle-finger MCP: the most stable proxy for the palm centre
+    const palm = hand[9];
+    const nx = (0.5 - palm.x) * 1.25;        // mirrored, with a little gain
+    const ny = (palm.y - 0.5) * 1.25;
+    applyInput(nx, ny, 'hand');
+    handSeenAt = now;
+
+    octx.strokeStyle = 'rgba(200,162,106,.85)';
+    octx.lineWidth = 2;
+    for (const [a, b] of [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]]) {
+      const p = hand[a], q = hand[b];
+      octx.beginPath();
+      octx.moveTo((1 - p.x) * overlay.width, p.y * overlay.height);
+      octx.lineTo((1 - q.x) * overlay.width, q.y * overlay.height);
+      octx.stroke();
+    }
+    octx.fillStyle = 'rgba(200,162,106,.95)';
+    for (const p of hand) {
+      octx.beginPath();
+      octx.arc((1 - p.x) * overlay.width, p.y * overlay.height, 2.4, 0, Math.PI * 2);
+      octx.fill();
+    }
+  }
+
+  const live = now - handSeenAt < 500;
+  modelabel.innerHTML = live ? '<b>Hand</b> — tracking' : '<b>Hand</b> — show your hand';
+  document.getElementById('dot').classList.toggle('live', live);
+}
+
+/* ------------------------------------------------------------------- loop */
+function resize(){
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  // keep the globe fully in frame on narrow screens
+  camera.position.z = w / h < 1 ? 4.35 : 3.15;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+
+let frame = 0;
+function tick(){
+  requestAnimationFrame(tick);
+  frame++;
+
+  if (idleFrames > 90) {                    // ~1.5s of no input
+    baseYaw += IDLE_SPIN;
+    basePitch += Math.sin(frame * 0.0016) * 0.00035;
+  }
+  idleFrames++;
+
+  wantYaw   = baseYaw   + handYaw;
+  wantPitch = basePitch + handPitch;
+
+  yaw   += (wantYaw   - yaw)   * EASE;
+  pitch += (wantPitch - pitch) * EASE;
+  globe.rotation.set(pitch, yaw, 0);
+
+  for (const t of tiles){
+    if (t.mesh.material.opacity < 1 && frame > t.delay){
+      t.mesh.material.opacity = Math.min(1, t.mesh.material.opacity + 0.045);
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+tick();
+
+// hide the loader once the first frame is on screen
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  document.getElementById('loader').classList.add('gone');
+}));
+
+// expose a little state for testing / debugging
+window.__globe = { get yaw(){ return yaw; }, get pitch(){ return pitch; },
+                   get tiles(){ return tiles.length; },
+                   get tracking(){ return !!handLandmarker; },
+                   get photos(){ return tiles.filter(t => t.material.map && t.material.map.image &&
+                                                          t.material.map.image.width > 300).length; } };
+</script>
+</body>
+</html>
