@@ -32,6 +32,14 @@ const PROJECTS = [
     url: undefined,
     img: "/work-illuminate.png",
   },
+  {
+    name: "Photo Globe",
+    trade: "Interactive · three.js",
+    blurb:
+      "Eighty-eight tiles of studio work on a sphere you can drag, or steer with your hand. Built to be played with.",
+    url: "/photo-globe/",
+    img: undefined,
+  },
 ];
 
 export default function App() {
