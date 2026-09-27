@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import fs from "fs/promises";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
@@ -22,12 +21,12 @@ const ai = new GoogleGenAI({
 
 app.use(express.json());
 
-const SYSTEM_PROMPT = `You are the official AI Assistant for IceBourg Designs. 
-IceBourg Designs is a premium digital design studio specializing in UI/UX, 3D interaction, and high-end web development.
+const SYSTEM_PROMPT = `You are the official AI Assistant for StableAFdesigns. 
+StableAFdesigns is a premium digital design studio specializing in UI/UX, 3D interaction, and high-end web development.
 
 Your goals:
 1. Provide helpful answers to FAQs.
-2. If the user is interested in working with IceBourg, your priority is to CAPTURE their Name and Phone Number.
+2. If the user is interested in working with StableAFdesigns, your priority is to CAPTURE their Name and Phone Number.
 3. Keep the tone professional, minimalist, and "cool".
 4. FAQ Reference:
    - Price: Do not give a specific price. Tell them that Mr. Bourg looks at each build differently and gives prices on an individual basis depending on the needs of the client.
@@ -79,8 +78,8 @@ app.post("/api/chat", async (req, res) => {
 
             await transporter.sendMail({
               from: process.env.EMAIL_USER,
-              to: process.env.EMAIL_USER,
-              subject: `🚨 NEW LEAD: ${leadData.name} - IceBourg Designs`,
+              to: process.env.LEAD_EMAIL || process.env.EMAIL_USER,
+              subject: `🚨 NEW LEAD: ${leadData.name} - StableAFdesigns`,
               text: `You have a new lead!\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\n\nFollow up with them soon!`,
             });
             console.log("Lead email sent successfully.");
@@ -116,6 +115,7 @@ app.post("/api/chat", async (req, res) => {
 
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",

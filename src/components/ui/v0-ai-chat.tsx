@@ -60,10 +60,10 @@ function useAutoResizeTextarea({
     return { textareaRef, adjustHeight };
 }
 
-export function IceBourgAssistant() {
+export function StableAFAssistant() {
     const [value, setValue] = useState("");
     const [messages, setMessages] = useState<Message[]>([
-        { role: "model", parts: "Hello! I'm the IceBourg AI. How can I help you with your design or development needs today?" }
+        { role: "model", parts: "Hello! I'm the StableAF AI. How can I help you with your design or development needs today?" }
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -154,7 +154,7 @@ export function IceBourgAssistant() {
                                 {msg.parts}
                             </div>
                             <span className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest font-medium">
-                                {msg.role === "user" ? "You" : "IceBourg AI"}
+                                {msg.role === "user" ? "You" : "StableAF AI"}
                             </span>
                         </motion.div>
                     ))}
@@ -216,7 +216,7 @@ export function IceBourgAssistant() {
                     </div>
                 </div>
                 <p className="text-[10px] text-center text-zinc-600 mt-2">
-                    IceBourg Assistant can answer questions and collect project details.
+                    StableAF Assistant can answer questions and collect project details.
                 </p>
             </div>
         </div>
