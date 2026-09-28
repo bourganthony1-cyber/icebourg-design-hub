@@ -6,11 +6,16 @@
 
 @layer base {
   body {
-    @apply bg-black text-zinc-400 font-sans selection:bg-white/20 min-h-screen overflow-x-hidden;
+    /* Light is the default theme now, so the base paint is light. A black body behind a
+       light app flashes black on first load — which is exactly the "site is not loading"
+       impression we are removing. The app root paints the real theme over this. */
+    @apply bg-zinc-100 font-sans selection:bg-zinc-400/30 min-h-screen overflow-x-hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-white font-medium tracking-tight;
+    /* No colour here: every heading carries its own theme-aware colour, and a fixed
+       light-on-dark default would go invisible the moment the theme flips. */
+    @apply font-medium tracking-tight;
   }
 }
 

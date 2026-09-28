@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { StableAFAssistant } from "./components/ui/v0-ai-chat";
 import { SplineScene } from "./components/ui/spline-scene";
 import { Card } from "./components/ui/card";
-import { Flashlight } from "./components/Flashlight";
 import { trackCursor, lights } from "./lib/cursor";
 import { wireRobotGaze } from "./lib/robot";
 import { Sun, Moon } from "lucide-react";
@@ -43,8 +42,9 @@ const PROJECTS = [
 ];
 
 export default function App() {
-  const [isLightsOn, setIsLightsOn] = useState(false);
+  const [isLightsOn, setIsLightsOn] = useState(true);
   const [showWork, setShowWork] = useState(false);
+  const light = isLightsOn;
   // Defer the Spline robot until the main thread is idle so it can't block first
   // paint / interactivity (it was ~10.6s of TBT mounting on load). The robot
   // still shows up a beat later — it just stops charging the whole page for it.
@@ -69,6 +69,14 @@ export default function App() {
     lights.on = isLightsOn;
   }, [isLightsOn]);
 
+  // Keep the browser chrome in step with the theme — scrollbars, form controls and the
+  // overscroll gutter — so a light page never flashes a black edge.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.colorScheme = light ? "light" : "dark";
+    root.style.backgroundColor = light ? "#f4f4f5" : "#000000";
+  }, [light]);
+
   // Tear the gaze loop down on unmount.
   useEffect(() => () => gazeCleanup.current?.(), []);
 
@@ -78,31 +86,39 @@ export default function App() {
   };
 
   return (
-    <div className={`h-screen w-full transition-colors duration-700 flex flex-col items-center justify-center relative overflow-hidden ${isLightsOn ? "bg-zinc-900" : "bg-black"}`}>
-      {/* Header — above the flashlight so the light switch is always findable */}
-      <header className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-[60] border-b border-white/5 bg-black/20 backdrop-blur-md">
+    <div className={`h-screen w-full transition-colors duration-700 flex flex-col items-center justify-center relative overflow-hidden ${light ? "bg-zinc-100" : "bg-black"}`}>
+      {/* Header — always on top, so the light switch is findable */}
+      <header className={`absolute top-0 left-0 w-full p-6 flex justify-between items-center z-[60] border-b backdrop-blur-md ${light ? "border-black/5 bg-white/70" : "border-white/5 bg-black/20"}`}>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-            <span className="text-black font-bold text-lg">S</span>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${light ? "bg-zinc-900 shadow-[0_0_20px_rgba(0,0,0,0.18)]" : "bg-white shadow-[0_0_20px_rgba(255,255,255,0.3)]"}`}>
+            <span className={`font-bold text-lg ${light ? "text-white" : "text-black"}`}>S</span>
           </div>
-          <h1 className="text-lg font-semibold tracking-tight text-white">StableAFdesigns</h1>
+          <h1 className={`text-lg font-semibold tracking-tight ${light ? "text-zinc-900" : "text-white"}`}>StableAFdesigns</h1>
         </div>
-        <div className="flex items-center gap-4 text-xs font-medium text-zinc-400">
+        <div className={`flex items-center gap-4 text-xs font-medium ${light ? "text-zinc-600" : "text-zinc-400"}`}>
           <button
             onClick={() => setShowWork(true)}
-            className="hidden md:inline hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-xs font-medium text-zinc-400"
+            className={`hidden md:inline transition-colors cursor-pointer bg-transparent border-0 p-0 text-xs font-medium ${light ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-400 hover:text-white"}`}
+          >
+            Work
+          </button>
+          {/* Work and Contact were md-and-up only, so on a phone the portfolio was unreachable
+              and the header had no touch target at all. Keep one Work button on small screens. */}
+          <button
+            onClick={() => setShowWork(true)}
+            className={`md:hidden transition-colors cursor-pointer bg-transparent border-0 p-0 text-xs font-medium ${light ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-400 hover:text-white"}`}
           >
             Work
           </button>
           <a
             href="mailto:StableAFDesign@proton.me"
-            className="hidden md:inline hover:text-white transition-colors cursor-pointer"
+            className={`hidden md:inline transition-colors cursor-pointer ${light ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-400 hover:text-white"}`}
           >
             Contact
           </a>
           <button
             onClick={() => setIsLightsOn(!isLightsOn)}
-            className={`flex items-center gap-2 px-3 py-2 border border-white/10 rounded-full transition-all active:scale-95 text-zinc-300 hover:text-white ${isLightsOn ? "bg-white/5 hover:bg-white/10" : "bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.45)]"}`}
+            className={`flex items-center gap-2 px-3 py-2 border rounded-full transition-all active:scale-95 ${light ? "border-black/10 bg-black/[0.04] text-zinc-700 hover:bg-black/[0.07] hover:text-zinc-900" : `border-white/10 text-zinc-300 hover:text-white ${isLightsOn ? "bg-white/5 hover:bg-white/10" : "bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.45)]"}`}`}
           >
             {isLightsOn ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-zinc-400" />}
             <span>{isLightsOn ? "Lights on" : "Lights out"}</span>
@@ -111,21 +127,21 @@ export default function App() {
       </header>
 
       {/* Main Layout */}
-      <Card className="w-full max-w-6xl h-[750px] bg-black/40 border-white/10 shadow-2xl backdrop-blur-sm flex overflow-hidden relative z-10">
+      <Card className={`w-full max-w-6xl h-[750px] shadow-2xl backdrop-blur-sm flex overflow-hidden relative z-10 ${light ? "bg-white/80 border-black/10" : "bg-black/40 border-white/10"}`}>
         <div className="flex-1 flex flex-col md:flex-row h-full">
           {/* Left: Chatbot */}
-          <div className="flex-[1.2] border-r border-white/5 flex flex-col h-full overflow-hidden bg-black/20">
-            <div className="p-6 border-b border-white/5">
-              <h2 className="text-xl font-bold text-white">StableAF Assistant</h2>
+          <div className={`flex-[1.2] border-r flex flex-col h-full overflow-hidden ${light ? "border-black/5 bg-white/40" : "border-white/5 bg-black/20"}`}>
+            <div className={`p-6 border-b ${light ? "border-black/5" : "border-white/5"}`}>
+              <h2 className={`text-xl font-bold ${light ? "text-zinc-900" : "text-white"}`}>StableAF Assistant</h2>
               <p className="text-xs text-zinc-500">Ask about our services or start a project.</p>
             </div>
             <div className="flex-1 overflow-hidden">
-              <StableAFAssistant />
+              <StableAFAssistant light={light} />
             </div>
           </div>
 
           {/* Right: Spline Robot — mounted on idle so it can't block first paint */}
-          <div className="flex-1 relative hidden md:block bg-gradient-to-br from-zinc-900/50 to-black">
+          <div className={`flex-1 relative hidden md:block ${light ? "bg-gradient-to-br from-zinc-200/60 to-white" : "bg-gradient-to-br from-zinc-900/50 to-black"}`}>
             {robotMounted ? (
               <SplineScene
                 scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
@@ -137,27 +153,27 @@ export default function App() {
                 <span className="loader"></span>
               </div>
             )}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.3em] text-zinc-500 pointer-events-none">Vanta</div>
+            <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.3em] pointer-events-none ${light ? "text-zinc-400" : "text-zinc-500"}`}>Vanta</div>
           </div>
         </div>
       </Card>
 
       {/* Footer / Branding */}
-      <footer className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-zinc-700 uppercase tracking-[0.2em] pointer-events-none">
+      <footer className={`absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.2em] pointer-events-none ${light ? "text-zinc-400" : "text-zinc-700"}`}>
         StableAFdesigns © 2026
       </footer>
 
       {/* Work overlay */}
       {showWork && (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl overflow-y-auto">
+        <div className={`fixed inset-0 z-[100] backdrop-blur-xl overflow-y-auto ${light ? "bg-white/95" : "bg-black/95"}`}>
           <button
             onClick={() => setShowWork(false)}
-            className="absolute top-6 right-6 text-zinc-400 hover:text-white text-sm font-medium"
+            className={`absolute top-6 right-6 text-sm font-medium ${light ? "text-zinc-500 hover:text-zinc-900" : "text-zinc-400 hover:text-white"}`}
           >
             Close ✕
           </button>
           <div className="max-w-4xl mx-auto px-8 pt-24 pb-16">
-            <h2 className="text-3xl font-bold text-white tracking-tight">Work</h2>
+            <h2 className={`text-3xl font-bold tracking-tight ${light ? "text-zinc-900" : "text-white"}`}>Work</h2>
             <p className="text-zinc-500 mt-2 text-sm">A few things I've shipped.</p>
             <div className="grid md:grid-cols-3 gap-6 mt-10">
               {PROJECTS.map((p) => {
@@ -167,18 +183,18 @@ export default function App() {
                       <img
                         src={p.img}
                         alt={p.name}
-                        className="w-full h-44 object-cover object-top rounded-xl mb-4 border border-white/10"
+                        className={`w-full h-44 object-cover object-top rounded-xl mb-4 border ${light ? "border-black/10" : "border-white/10"}`}
                       />
                     )}
                     <div className="text-[10px] uppercase tracking-[0.25em] text-zinc-500">{p.trade}</div>
-                    <h3 className="text-xl font-semibold text-white mt-2">{p.name}</h3>
-                    <p className="text-sm text-zinc-400 mt-2 leading-relaxed">{p.blurb}</p>
-                    <div className="text-xs text-zinc-500 mt-4 group-hover:text-white transition-colors">
+                    <h3 className={`text-xl font-semibold mt-2 ${light ? "text-zinc-900" : "text-white"}`}>{p.name}</h3>
+                    <p className={`text-sm mt-2 leading-relaxed ${light ? "text-zinc-600" : "text-zinc-400"}`}>{p.blurb}</p>
+                    <div className={`text-xs mt-4 transition-colors ${light ? "text-zinc-500 group-hover:text-zinc-900" : "text-zinc-500 group-hover:text-white"}`}>
                       {p.url ? "View site →" : "Concept — kept private"}
                     </div>
                   </>
                 );
-                const cls = "group block border border-white/10 rounded-2xl p-6 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition-all";
+                const cls = `group block border rounded-2xl p-6 transition-all ${light ? "border-black/10 bg-black/[0.02] hover:bg-black/[0.05] hover:border-black/20" : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20"}`;
                 return p.url ? (
                   <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer" className={cls}>
                     {inner}
@@ -194,8 +210,8 @@ export default function App() {
         </div>
       )}
 
-      {/* The flashlight — lights out only. Covers everything, beam reveals it. */}
-      <Flashlight active={!isLightsOn} />
+      {/* The flashlight is gone on purpose: a full-screen black mask on first paint read as
+          "the site is not loading" to visitors. Lights on is the default; nothing covers the page. */}
     </div>
   );
 }

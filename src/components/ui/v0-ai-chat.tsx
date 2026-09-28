@@ -60,7 +60,7 @@ function useAutoResizeTextarea({
     return { textareaRef, adjustHeight };
 }
 
-export function StableAFAssistant() {
+export function StableAFAssistant({ light = false }: { light?: boolean } = {}) {
     const [value, setValue] = useState("");
     const [messages, setMessages] = useState<Message[]>([
         { role: "model", parts: "Hello! I'm the StableAF AI. How can I help you with your design or development needs today?" }
@@ -147,9 +147,9 @@ export function StableAFAssistant() {
                         >
                             <div className={cn(
                                 "px-4 py-3 rounded-2xl text-sm leading-relaxed",
-                                msg.role === "user" 
-                                    ? "bg-white text-black rounded-tr-none" 
-                                    : "bg-neutral-900 text-zinc-200 border border-neutral-800 rounded-tl-none"
+                                msg.role === "user"
+                                    ? (light ? "bg-zinc-900 text-white rounded-tr-none" : "bg-white text-black rounded-tr-none")
+                                    : (light ? "bg-white text-zinc-800 border border-zinc-200 rounded-tl-none" : "bg-neutral-900 text-zinc-200 border border-neutral-800 rounded-tl-none")
                             )}>
                                 {msg.parts}
                             </div>
@@ -174,8 +174,8 @@ export function StableAFAssistant() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t border-neutral-900 bg-black/50 backdrop-blur-xl">
-                <div className="relative bg-neutral-900 rounded-xl border border-neutral-800 focus-within:border-neutral-700 transition-colors">
+            <div className={`p-4 border-t backdrop-blur-xl ${light ? "border-zinc-200 bg-white/60" : "border-neutral-900 bg-black/50"}`}>
+                <div className={`relative rounded-xl border transition-colors ${light ? "bg-white border-zinc-200 focus-within:border-zinc-400" : "bg-neutral-900 border-neutral-800 focus-within:border-neutral-700"}`}>
                     <Textarea
                         ref={textareaRef}
                         value={value}
@@ -188,18 +188,19 @@ export function StableAFAssistant() {
                         className={cn(
                             "w-full px-4 py-3",
                             "resize-none bg-transparent border-none",
-                            "text-white text-sm focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
-                            "placeholder:text-neutral-500 min-h-[48px]"
+                            "text-sm focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                            light ? "text-zinc-900 placeholder:text-zinc-400" : "text-white placeholder:text-neutral-500",
+                            "min-h-[48px]"
                         )}
                         style={{ overflow: "hidden" }}
                     />
 
-                    <div className="flex items-center justify-between p-2 border-t border-neutral-800/50">
+                    <div className={`flex items-center justify-between p-2 border-t ${light ? "border-zinc-200" : "border-neutral-800/50"}`}>
                         <div className="flex items-center gap-1">
-                            <button type="button" className="p-2 hover:bg-neutral-800 rounded-lg text-zinc-400 hover:text-white transition-colors">
+                            <button type="button" className={`p-2 rounded-lg transition-colors ${light ? "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900" : "hover:bg-neutral-800 text-zinc-400 hover:text-white"}`}>
                                 <Paperclip className="w-4 h-4" />
                             </button>
-                            <button type="button" className="px-2 py-1 text-[10px] font-medium text-zinc-400 hover:bg-neutral-800 rounded-md border border-neutral-800 transition-colors flex items-center gap-1">
+                            <button type="button" className={`px-2 py-1 text-[10px] font-medium rounded-md border transition-colors flex items-center gap-1 ${light ? "text-zinc-500 hover:bg-zinc-100 border-zinc-200" : "text-zinc-400 hover:bg-neutral-800 border-neutral-800"}`}>
                                 <PlusIcon className="w-3 h-3" /> New Project
                             </button>
                         </div>
@@ -208,14 +209,16 @@ export function StableAFAssistant() {
                             disabled={!value.trim() || isLoading}
                             className={cn(
                                 "p-2 rounded-lg transition-all",
-                                value.trim() ? "bg-white text-black active:scale-95" : "text-zinc-600 bg-neutral-800 opacity-50 pointer-events-none"
+                                value.trim()
+                                    ? (light ? "bg-zinc-900 text-white active:scale-95" : "bg-white text-black active:scale-95")
+                                    : (light ? "text-zinc-400 bg-zinc-200 opacity-50 pointer-events-none" : "text-zinc-600 bg-neutral-800 opacity-50 pointer-events-none")
                             )}
                         >
                             <ArrowUpIcon className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
-                <p className="text-[10px] text-center text-zinc-600 mt-2">
+                <p className={`text-[10px] text-center mt-2 ${light ? "text-zinc-400" : "text-zinc-600"}`}>
                     StableAF Assistant can answer questions and collect project details.
                 </p>
             </div>
