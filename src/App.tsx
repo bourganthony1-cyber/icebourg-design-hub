@@ -6,22 +6,31 @@ import { trackCursor, lights } from "./lib/cursor";
 import { wireRobotGaze } from "./lib/robot";
 import { Sun, Moon } from "lucide-react";
 
-const PROJECTS = [
-  {
-    name: "Baton Rouge Plumbing",
-    trade: "Plumbing · Baton Rouge",
-    blurb:
-      "A dark, glassy site for a family-owned shop running since 1986 — LocalBusiness schema, six services, emergency line.",
-    url: "https://baton-rouge-plumbing.vercel.app",
-    img: undefined,
-  },
+type Project = {
+  name: string;
+  trade: string;
+  blurb: string;
+  url?: string;
+  img?: string;
+  note?: string;
+};
+
+const PROJECTS: Project[] = [
   {
     name: "SoLit Electric",
     trade: "Electrical · Baton Rouge metro",
     blurb:
       "A licensed electrician's full local-search overhaul — service pages, structured data, a blog that actually gets found.",
     url: "https://www.solitelectric.com",
-    img: undefined,
+    img: "/work-solitelectric.webp",
+  },
+  {
+    name: "Plumbing — concept",
+    trade: "Plumbing · Baton Rouge",
+    blurb:
+      "A dark, glassy site for a family-owned shop running since 1986 — services, service area and an emergency line on one page that loads in under a second. Built as a demonstration, and the number on it is fake on purpose.",
+    url: "https://baton-rouge-plumbing.vercel.app",
+    img: "/work-baton-rouge-plumbing.webp",
   },
   {
     name: "Electrician — concept",
@@ -37,7 +46,23 @@ const PROJECTS = [
     blurb:
       "Eighty-eight tiles of studio work on a sphere you can drag, or steer with your hand. Built to be played with.",
     url: "/photo-globe/",
-    img: undefined,
+    img: "/work-globe.webp",
+  },
+  {
+    name: "The template",
+    trade: "Every build starts here",
+    blurb:
+      "One page structure, one design language, swapped per client — business, town, trade, licence. It is why a new site takes a day instead of a month.",
+    img: "/work-template.webp",
+    note: "Shown on request",
+  },
+  {
+    name: "The Cost of Invisibility",
+    trade: "Pitch deck",
+    blurb:
+      "What a missing web presence costs a trade business, worked in that business's own market. Every number sourced, or left blank on purpose.",
+    img: "/work-deck.webp",
+    note: "Shown in the pitch",
   },
 ];
 
@@ -190,7 +215,7 @@ export default function App() {
                     <h3 className={`text-xl font-semibold mt-2 ${light ? "text-zinc-900" : "text-white"}`}>{p.name}</h3>
                     <p className={`text-sm mt-2 leading-relaxed ${light ? "text-zinc-600" : "text-zinc-400"}`}>{p.blurb}</p>
                     <div className={`text-xs mt-4 transition-colors ${light ? "text-zinc-500 group-hover:text-zinc-900" : "text-zinc-500 group-hover:text-white"}`}>
-                      {p.url ? "View site →" : "Concept — kept private"}
+                      {p.url ? "View site →" : p.note ?? "Concept — kept private"}
                     </div>
                   </>
                 );
