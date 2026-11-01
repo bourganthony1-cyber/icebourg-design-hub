@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Photo Globe — studio piece</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Vesperline Studio | Selected Work</title>
 <link rel="icon" href="data:,">
 <style>
   :root{
@@ -27,7 +28,7 @@
       radial-gradient(60% 60% at 50% 46%, rgba(200,162,106,.07), transparent 70%),
       radial-gradient(120% 90% at 50% 50%, transparent 45%, rgba(0,0,0,.75) 100%);
   }
-  canvas#stage{position:fixed; inset:0; display:block; z-index:1}
+  canvas#stage{position:fixed; inset:0; display:block; z-index:1; width:100%; height:100%}
 
   .hud{position:fixed; inset:0; z-index:3; pointer-events:none}
   .hud > *{pointer-events:auto}
@@ -113,7 +114,11 @@
 
   @media (max-width:820px){
     .brand,.status,.hint{left:22px; right:22px}
-    .hint{text-align:left}
+    /* the hint was landing on top of the two status rows at every width under 820px */
+    .hint{text-align:left; bottom:88px}
+    /* and the CTA was landing on the hint */
+    .cta{bottom:150px}
+    .err{bottom:150px}
     .camwrap{width:132px; right:22px}
   }
 </style>
@@ -126,7 +131,7 @@
 
 <div class="hud">
   <div class="brand">
-    <span class="mark">Studio</span>
+    <span class="mark">Vesperline</span>
     <span class="rule"></span>
     <span class="sub">Selected work</span>
   </div>
@@ -145,7 +150,7 @@
   <button class="cta" id="cta">Enable hand tracking</button>
   <div class="err" id="err"></div>
 
-  <div class="hint">Move your hand · or drag <kbd>drag</kbd></div>
+  <div class="hint">Move your hand · or just <kbd>drag</kbd></div>
 </div>
 
 <script type="module">
@@ -394,16 +399,35 @@ function trackLoop(){
 /* ------------------------------------------------------------------- loop */
 function resize(){
   const w = innerWidth, h = innerHeight;
-  renderer.setSize(w, h, false);
+  // setSize(..., false) left the CSS box to the drawing-buffer's intrinsic size,
+  // so on a 2x screen the canvas came out double the viewport and the globe
+  // rendered off-centre and cropped. size the buffer AND the box.
+  renderer.setSize(w, h);
   camera.aspect = w / h;
-  // keep the globe fully in frame on narrow screens
-  camera.position.z = w / h < 1 ? 4.35 : 3.15;
+  // Fit the sphere to the tighter screen dimension by scaling the globe, not by
+  // pulling the camera back: the scene fog runs 2.35–4.5, so a distant camera
+  // faded the whole piece to black on a phone.
+  const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
+  camera.position.z = 3.15;
+  const s = Math.min(1, (Math.tan(halfFov) * camera.position.z * camera.aspect) / RADIUS * 0.92);
+  globe.scale.setScalar(s);
   camera.updateProjectionMatrix();
 }
 addEventListener('resize', resize);
 resize();
 
 let frame = 0;
+// The loader used to be dismissed by requestAnimationFrame alone, so a tab that
+// loads in the background (rAF throttled to ~1 tick/2s) sat on "Loading" until it
+// was focused. Hide it on the first painted frame, with a timer as the backstop.
+let loaderHidden = false;
+function hideLoader(){
+  if (loaderHidden) return;
+  loaderHidden = true;
+  document.getElementById('loader').classList.add('gone');
+}
+setTimeout(hideLoader, 2500);
+
 function tick(){
   requestAnimationFrame(tick);
   frame++;
@@ -428,13 +452,9 @@ function tick(){
   }
 
   renderer.render(scene, camera);
+  if (!loaderHidden) hideLoader();
 }
 tick();
-
-// hide the loader once the first frame is on screen
-requestAnimationFrame(() => requestAnimationFrame(() => {
-  document.getElementById('loader').classList.add('gone');
-}));
 
 // expose a little state for testing / debugging
 window.__globe = { get yaw(){ return yaw; }, get pitch(){ return pitch; },

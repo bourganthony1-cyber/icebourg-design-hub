@@ -1,6 +1,24 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/photo-globe",
+      "destination": "/work/",
+      "permanent": true
+    },
+    {
+      "source": "/photo-globe/(.*)",
+      "destination": "/work/",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.stableafdesigns.com" }],
+      "destination": "https://stableafdesigns.com/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",

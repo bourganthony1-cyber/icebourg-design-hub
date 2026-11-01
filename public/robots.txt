@@ -1,0 +1,11 @@
+# https://stableafdesigns.com/robots.txt
+User-agent: *
+Allow: /
+
+# Pitch decks and client demos: reachable by anyone we send the link to,
+# kept out of the index so a fake-since-1986 plumbing shop never gets
+# quoted as a real business.
+Disallow: /proposal-baton-rouge-plumbing.html
+Disallow: /baton-rouge-plumbing-site.html
+
+Sitemap: https://stableafdesigns.com/sitemap.xml

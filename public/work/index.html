@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work — StableAFdesigns</title>
+<meta name="description" content="Selected work from StableAFdesigns: a Baton Rouge electrician found in local search, trade sites built page by page, and the three.js globe piece." />
+<link rel="canonical" href="https://stableafdesigns.com/work/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#08090b">
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="StableAFdesigns" />
+<meta property="og:url" content="https://stableafdesigns.com/work/" />
+<meta property="og:title" content="Work — StableAFdesigns" />
+<meta property="og:description" content="Selected work: local search for a Baton Rouge electrician, trade sites built page by page, and the globe piece." />
+<meta property="og:image" content="https://stableafdesigns.com/work-globe.webp" />
+
+<style>
+  :root{
+    --ink:#f4f2ee; --dim:#8b8a87; --line:rgba(255,255,255,.10);
+    --bg:#08090b; --card:#0d0f12; --accent:#c8a26a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg)}
+  body{
+    background:var(--bg); color:var(--ink); min-height:100%;
+    font:400 15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 44px}
+  header{display:flex;justify-content:space-between;align-items:baseline;padding:38px 0 0}
+  .brand{font-size:15px;color:var(--ink);text-decoration:none}
+  .brand span{display:block;margin-top:6px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+  .top-link{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-decoration:none}
+  .top-link:hover{color:var(--accent)}
+
+  .intro{padding:88px 0 0;max-width:640px}
+  .intro h1{font-size:clamp(30px,4.4vw,46px);line-height:1.08;letter-spacing:-.02em;font-weight:500}
+  .intro p{margin-top:18px;color:var(--dim);font-size:16px}
+
+  /* the reel — a portrait recording of the globe piece */
+  .reel{margin-top:64px;display:grid;grid-template-columns:340px 1fr;
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
+  .reel .stage{position:relative;aspect-ratio:9/16;background:#000}
+  .reel video,.reel .slot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .reel video{display:block;background:#000}
+  .reel video[hidden]{display:none}
+  .reel .slot{display:flex;align-items:center;justify-content:center;
+    background:#000 center/cover no-repeat;position:relative}
+  .reel .slot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.75))}
+  .reel .slot .note{position:relative;z-index:1;text-align:center;font-size:10px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--ink);padding:12px 16px;border:1px solid var(--line);
+    border-radius:999px;background:rgba(8,9,11,.6);backdrop-filter:blur(8px)}
+  .reel .say{padding:38px 36px;display:flex;flex-direction:column;justify-content:center;
+    border-left:1px solid var(--line)}
+  .say .kick{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+  .say h2{font-size:24px;font-weight:500;margin-top:10px;letter-spacing:-.01em;line-height:1.2}
+  .say p{margin-top:12px;font-size:14.5px;color:var(--dim);max-width:46ch}
+  .say .meta{margin-top:18px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;padding:70px 0 0}
+  .work{border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden;
+    transition:border-color .3s, transform .3s}
+  .work:hover{border-color:rgba(200,162,106,.45);transform:translateY(-2px)}
+  .work .shot{position:relative;display:block;border-bottom:1px solid var(--line);overflow:hidden;cursor:pointer}
+  .work .shot img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top}
+  .work .shot video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+  .work .shot .play{position:absolute;right:12px;bottom:12px;z-index:2;font-size:9.5px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ink);padding:8px 12px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.22);background:rgba(8,9,11,.66);backdrop-filter:blur(8px)}
+  .work:hover .shot .play{border-color:rgba(200,162,106,.6);color:#fff}
+  .work .shot.playing .play{display:none}
+  .work .body{padding:20px 22px 24px}
+  .work .trade{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+  .work h2{font-size:19px;font-weight:500;margin-top:8px;letter-spacing:-.01em}
+  .work p{margin-top:10px;font-size:14px;color:var(--dim)}
+  .work .go{display:inline-block;margin-top:14px;font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--accent);text-decoration:none}
+  .work .note{display:inline-block;margin-top:14px;font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--dim)}
+
+  footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    padding:80px 0 54px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+  footer a{color:var(--ink);text-decoration:none}
+  footer a:hover{color:var(--accent)}
+
+  @media (max-width:860px){
+    .wrap{padding:0 22px}
+    header{padding-top:26px}
+    .intro{padding-top:56px}
+    .reel{grid-template-columns:1fr}
+    .reel .say{border-left:0;border-top:1px solid var(--line);padding:26px 22px 30px}
+    .reel .say h2{font-size:21px}
+    .grid{grid-template-columns:1fr;gap:20px;padding-top:52px}
+    footer{padding-bottom:40px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="brand" href="/">StableAFdesigns<span>Selected work</span></a>
+    <a class="top-link" href="mailto:StableAFDesign@proton.me">Start a project</a>
+  </header>
+
+  <section class="intro">
+    <h1>Six builds, and one piece that exists to be played with.</h1>
+    <p>Local search for a licensed electrician, trade sites built one page at a time, and a three.js globe. Everything here is real work or a design built to the same standard.</p>
+  </section>
+
+  <section class="reel">
+    <!-- The recording lives at public/media/globe-demo.mp4. Replace that file and
+         this swaps itself in on the next load; no code to touch. -->
+    <div class="stage">
+      <div class="slot" id="slot" style="background-image:url('/media/globe-poster.webp')">
+        <span class="note" id="note">Globe build — video coming</span>
+      </div>
+      <video id="reel" controls playsinline muted loop preload="metadata"
+             poster="/media/globe-poster.webp" hidden></video>
+    </div>
+    <div class="say">
+      <div class="kick">The globe · three.js</div>
+      <h2>Steer a sphere with your hand</h2>
+      <p>A photography studio's whole portfolio wrapped around a sphere. Drag it with the mouse, or enable hand tracking and move your hand — the webcam reads it and the globe follows.</p>
+      <span class="meta">Recorded live on a laptop · 13 seconds</span>
+    </div>
+  </section>
+
+  <section class="grid">
+
+    <article class="work">
+      <div class="shot"><img src="/work-solitelectric.webp" alt="SoLit Electric — service page for a Baton Rouge electrician"></div>
+      <div class="body">
+        <div class="trade">Electrical · Baton Rouge metro</div>
+        <h2>SoLit Electric</h2>
+        <p>A licensed electrician's site rebuilt onto clean service pages with structured data and a blog. Still the only project here with a live client behind it.</p>
+        <a class="go" href="https://www.solitelectric.com" rel="noopener">Visit the site →</a>
+      </div>
+    </article>
+
+    <article class="work" data-video="/media/water-demo.mp4">
+      <div class="shot">
+        <img src="/work-cooks-water.webp" alt="Plumbing concept — a canvas water surface behind the headline">
+        <span class="play">Play · 8s</span>
+      </div>
+      <div class="body">
+        <div class="trade">Plumbing · Denham Springs, LA</div>
+        <h2>Plumbing · concept</h2>
+        <p>A canvas water surface that ripples under the pointer, a licensed-plumber badge, and the phone number one tap from the headline. No framework, no build step.</p>
+        <span class="note">Concept — live demo on request</span>
+      </div>
+    </article>
+
+    <article class="work" data-video="/media/arc-demo.mp4">
+      <div class="shot">
+        <img src="/work-emberline.webp" alt="Electrician concept — a dark landing page with an arc following the cursor">
+        <span class="play">Play · 8s</span>
+      </div>
+      <div class="body">
+        <div class="trade">Electrical · Baton Rouge metro</div>
+        <h2>Electrician · concept</h2>
+        <p>One dark landing page and an electric arc that follows the cursor across it. Most electricians install what is on the print.</p>
+        <span class="note">Concept, kept private</span>
+      </div>
+    </article>
+
+    <article class="work">
+      <div class="shot"><img src="/work-globe.webp" alt="Photography concept — a portfolio on a sphere"></div>
+      <div class="body">
+        <div class="trade">Interactive · three.js</div>
+        <h2>Photography · concept</h2>
+        <p>A photography studio's whole portfolio on a sphere you can drag, or steer with your hand if you let it see you. Made-up studio, made-up photographs.</p>
+        <span class="note">Shown in the recording above</span>
+      </div>
+    </article>
+
+    <article class="work">
+      <div class="shot"><img src="/work-template.webp" alt="The site template every build starts from"></div>
+      <div class="body">
+        <div class="trade">Every build starts here</div>
+        <h2>The template</h2>
+        <p>One page structure, one design language, swapped per client: business, town, trade, licence. It is why a new site takes a day instead of a month.</p>
+        <span class="note">Shown on request</span>
+      </div>
+    </article>
+
+    <article class="work">
+      <div class="shot"><img src="/work-deck.webp" alt="The Cost of Invisibility — a deck on what a missing web presence costs a trade business"></div>
+      <div class="body">
+        <div class="trade">Research · trade businesses</div>
+        <h2>The Cost of Invisibility</h2>
+        <p>What a missing web presence costs a trade business, worked in that business's own market. Every number sourced, or left blank on purpose.</p>
+        <span class="note">Shown on request</span>
+      </div>
+    </article>
+
+  </section>
+
+  <footer>
+    <span>StableAFdesigns © 2026 · Baton Rouge, LA</span>
+    <a href="mailto:StableAFDesign@proton.me">StableAFDesign@proton.me</a>
+  </footer>
+
+</div>
+
+<script>
+  // Pick up the recording the moment it exists, without touching this file.
+  (function(){
+    var v = document.getElementById('reel');
+    var slot = document.getElementById('slot');
+    var sources = ['/media/globe-demo.mp4', '/media/globe-demo.webm'];
+    (function next(i){
+      if (i >= sources.length) return;
+      fetch(sources[i], { method: 'HEAD' })
+        .then(function(r){
+          // the catch-all rewrite answers unknown paths with index.html, so a
+          // 200 is not enough — the content type has to be video
+          var ct = (r.headers.get('content-type') || '');
+          if (!r.ok || ct.indexOf('video/') !== 0) throw new Error('missing');
+          v.src = sources[i];
+          v.hidden = false;
+          slot.remove();
+          v.play().catch(function(){});
+        })
+        .catch(function(){ next(i + 1); });
+    })(0);
+  })();
+
+  // Cards that have a recording: click the still, it plays in place. One at a time.
+  (function(){
+    var cards = [].slice.call(document.querySelectorAll('.work[data-video]'));
+    cards.forEach(function(card){
+      var shot = card.querySelector('.shot');
+      shot.addEventListener('click', function(e){
+        e.preventDefault();
+        var playing = shot.querySelector('video');
+        cards.forEach(function(other){
+          var v = other.querySelector('video');
+          if (v && other !== card) { v.pause(); v.remove(); }
+        });
+        if (playing) { playing.pause(); playing.remove(); shot.classList.remove('playing'); return; }
+        var vid = document.createElement('video');
+        vid.src = card.getAttribute('data-video');
+        vid.muted = true; vid.loop = true; vid.playsInline = true; vid.autoplay = true;
+        vid.setAttribute('muted', ''); vid.setAttribute('playsinline', '');
+        shot.appendChild(vid);
+        shot.classList.add('playing');
+        vid.play().catch(function(){});
+      });
+    });
+    // a link inside the card body should still be a link
+    document.querySelectorAll('.work .go').forEach(function(a){
+      a.addEventListener('click', function(e){ e.stopPropagation(); });
+    });
+  })();
+</script>
+</body>
+</html>

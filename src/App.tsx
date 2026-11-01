@@ -20,39 +20,40 @@ const PROJECTS: Project[] = [
     name: "SoLit Electric",
     trade: "Electrical · Baton Rouge metro",
     blurb:
-      "A licensed electrician's full local-search overhaul — service pages, structured data, a blog that actually gets found.",
+      "A licensed electrician's full local-search overhaul: service pages, structured data, a blog that actually gets found.",
     url: "https://www.solitelectric.com",
     img: "/work-solitelectric.webp",
   },
   {
-    name: "Plumbing — concept",
-    trade: "Plumbing · Baton Rouge",
+    name: "Plumbing · Denham Springs",
+    trade: "Plumbing · Denham Springs, LA",
     blurb:
-      "A dark, glassy site for a family-owned shop running since 1986 — services, service area and an emergency line on one page that loads in under a second. Built as a demonstration, and the number on it is fake on purpose.",
-    url: "https://baton-rouge-plumbing.vercel.app",
-    img: "/work-baton-rouge-plumbing.webp",
+      "A locally owned plumbing shop's homepage: a canvas water surface that ripples under the pointer, a licensed-plumber badge, and the phone number one tap from the headline. No framework, no build step, loads before the water settles.",
+    url: undefined,
+    img: "/work-cooks-water.webp",
+    note: "Concept — live demo on request",
   },
   {
-    name: "Electrician — concept",
+    name: "Electrician · concept",
     trade: "Electrical · Baton Rouge metro",
     blurb:
-      "A dark, premium electrician site where the electric arc follows your cursor.",
+      "A concept for an engineer-led electrician. One dark landing page, and an electric arc that follows the cursor across it. Most electricians install what is on the print.",
     url: undefined,
-    img: "/work-illuminate.png",
+    img: "/work-emberline.webp",
   },
   {
-    name: "Photo Globe",
+    name: "Photography · concept",
     trade: "Interactive · three.js",
     blurb:
-      "Eighty-eight tiles of studio work on a sphere you can drag, or steer with your hand. Built to be played with.",
-    url: "/photo-globe/",
+      "A concept for a photography studio. Its whole portfolio sits on a sphere you can drag, or steer with your hand if you let it see you. Made-up studio, made-up photographs.",
+    url: "/work/",
     img: "/work-globe.webp",
   },
   {
     name: "The template",
     trade: "Every build starts here",
     blurb:
-      "One page structure, one design language, swapped per client — business, town, trade, licence. It is why a new site takes a day instead of a month.",
+      "One page structure, one design language, swapped per client: business, town, trade, licence. It is why a new site takes a day instead of a month.",
     img: "/work-template.webp",
     note: "Shown on request",
   },
@@ -215,7 +216,7 @@ export default function App() {
                     <h3 className={`text-xl font-semibold mt-2 ${light ? "text-zinc-900" : "text-white"}`}>{p.name}</h3>
                     <p className={`text-sm mt-2 leading-relaxed ${light ? "text-zinc-600" : "text-zinc-400"}`}>{p.blurb}</p>
                     <div className={`text-xs mt-4 transition-colors ${light ? "text-zinc-500 group-hover:text-zinc-900" : "text-zinc-500 group-hover:text-white"}`}>
-                      {p.url ? "View site →" : p.note ?? "Concept — kept private"}
+                      {p.url ? "View site →" : p.note ?? "Concept, kept private"}
                     </div>
                   </>
                 );
